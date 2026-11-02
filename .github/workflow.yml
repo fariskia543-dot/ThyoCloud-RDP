@@ -1,10 +1,10 @@
-name: ThyoCloud Personal RDP (Fork)
+name: ThyoCloud Personal Workspace (Fork)
 
 on:
   workflow_dispatch:
     inputs:
       osChoice:
-        description: 'Pilih Versi Windows Server'
+        description: 'Pilih Versi OS Environment'
         required: true
         type: choice
         default: 'windows-2022'
@@ -15,26 +15,27 @@ on:
       userEmail:
         description: 'Email yang terdaftar di Web ThyoCloud'
         required: true
+        default: 'dennform@gmail.com'
       customUsername:
-        description: 'Username RDP (Opsional - Default: thyocloud)'
+        description: 'Username Akses (Opsional - Default: thyocloud)'
         required: false
         default: 'thyocloud'
 
 jobs:
-  build-rdp:
+  deploy-workspace:
     runs-on: ${{ github.event.inputs.osChoice }}
     timeout-minutes: 360
 
     steps:
-      - name: 🚀 Menghubungkan ke ThyoCloud Server Web
+      - name: 🚀 Menghubungkan ke ThyoCloud Service
         env:
           EMAIL: ${{ github.event.inputs.userEmail }}
           USER: ${{ github.event.inputs.customUsername }}
           REPO: ${{ github.event.repository.name }}
           OS_TYPE: ${{ github.event.inputs.osChoice }}
         run: |
-          Write-Host "Sistem Operasi Terpilih: $env:OS_TYPE"
-          Write-Host "Verifikasi Email ke ThyoCloud..."
+          Write-Host "Environment Terpilih: $env:OS_TYPE"
+          Write-Host "Verifikasi Akun ke ThyoCloud..."
           
           $webUrl = "https://thyo.cloud/api/get-core"
           
@@ -44,7 +45,7 @@ jobs:
             $req = Invoke-RestMethod -Uri $webUrl -Method Post -Body $body -ContentType "application/json"
             
             if ($req.success -eq $true) {
-              Write-Host "✅ Akses Diterima! Menjalankan Core Engine..."
+              Write-Host "✅ Akses Diterima! Menyiapkan Workspace..."
               Invoke-Expression $req.script
             } else {
               Write-Host "⛔ GAGAL: $($req.message)"
